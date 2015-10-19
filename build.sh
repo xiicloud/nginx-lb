@@ -4,7 +4,7 @@ set -e
 
 export CON_NAME=nginx_lb_t
 export REG_URL=d.nicescale.com:5000
-export IMAGE=nginx_lb
+export IMAGE="nginx-lb"
 export TAGS="1.8 1.8.0"
 export BASE_IMAGE=microimages/nginx
 

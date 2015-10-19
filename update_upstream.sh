@@ -1,7 +1,15 @@
 #!/bin/bash
 
+
+if [ -z "$DOMAINS" ]; then
+  echo "domains empty, do nothing!"
+  sleep 100000000
+fi
+
+echo "domains: $DOMAINS"
+
 for domain in "$DOMAINS"; do
-  config_path=/etc/nginx/conf.d/"$domain".conf
+  config_path=/etc/nginx/conf.d/$domain.conf
 
   {
   while [ true ]; do
