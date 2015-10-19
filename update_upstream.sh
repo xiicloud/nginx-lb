@@ -10,23 +10,23 @@ else
   echo "domains: $DOMAINS"
 
   for domain in "$DOMAINS"; do
-    config_path=/etc/nginx/conf.d/$domain.conf
+    config_path=/etc/nginx/conf.d/${domain}.conf
 
     {
     while [ true ]; do
       backends=$(dig +short $domain|sort)
       backends_config=
       for b in $backends; do
-        backends_config=$(echo -e "$backends_config\nserver $b;")
+        backends_config=$(echo -e "${backends_config}\nserver $b;")
       done
-      cat << EOF > $config_path.tmp
+      cat << EOF > ${config_path}.tmp
 upstream backends  {
   $backends_config
 }
 
 server {
   listen       80;
-  server_name  $domain;
+  server_name  ${domain};
 
   location / {
     proxy_pass  http://backends;
@@ -39,12 +39,12 @@ server {
 }
 EOF
       if [ -f "$config_path" ]; then
-        diff $config_path $config_path.tmp && sleep 1 && continue
+        diff $config_path ${config_path}.tmp && sleep 1 && continue
         echo file changed
-        mv $config_path.tmp $config_path 
+        mv ${config_path}.tmp $config_path 
         nginx -s reload
       else
-        mv $config_path.tmp $config_path
+        mv ${config_path}.tmp $config_path
         nginx -s reload
       fi
 
