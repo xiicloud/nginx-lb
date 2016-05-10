@@ -17,6 +17,7 @@ const (
 	confdTplDir    = "/etc/confd/templates"
 	tplPath        = "/tpls"
 	sslCertDir     = "/etc/nginx/ssl"
+	nginxConfDir   = "/etc/nginx"
 )
 
 type Service struct {
@@ -126,11 +127,16 @@ func genConfdToml(services []*Service) error {
 	}
 	defer fp.Close()
 	v, err := json.Marshal(keys)
-	return tpl.Execute(fp, string(v))
+	vars := map[string]string{
+		"Keys":     string(v),
+		"DestPath": getConfdNginxConfDestPath(),
+	}
+
+	return tpl.Execute(fp, vars)
 }
 
 func genNginxTpl(services []*Service) error {
-	src := filepath.Join(tplPath, "nginx.tpl")
+	src := filepath.Join(tplPath, getNginxTpl())
 	dst := filepath.Join(confdTplDir, "nginx.tpl")
 	tpl := template.Must(getTplObj("nginx.tpl").ParseFiles(src))
 
@@ -147,4 +153,28 @@ func getTplObj(name string) *template.Template {
 	tpl := template.New(name)
 	tpl.Delims("(", ")")
 	return tpl
+}
+
+func getNginxTpl() string {
+	switch runMode() {
+	case "upstream-only":
+		return "upstreams.tpl"
+	case "path-mux":
+		return "nginx-path-mux.tpl"
+	default:
+		return "nginx.tpl"
+	}
+}
+
+func getConfdNginxConfDestPath() string {
+	switch runMode() {
+	case "upstream-only":
+		return filepath.Join(nginxConfDir, "conf.d", "upstreams.conf")
+	default:
+		return filepath.Join(nginxConfDir, "nginx.conf")
+	}
+}
+
+func runMode() string {
+	return os.Getenv("MODE")
 }

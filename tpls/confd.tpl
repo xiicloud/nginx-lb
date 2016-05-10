@@ -1,9 +1,9 @@
 [template]
 prefix      = "/lb/backends"
-keys        = (.)
+keys        = (.Keys)
 owner       = "root"
 mode        = "0644"
 src         = "nginx.tpl"
-dest        = "/etc/nginx/nginx.conf"
+dest        = "(.DestPath)"
 check_cmd   = "/usr/sbin/nginx -t -c {{.src}}"
 reload_cmd  = "/usr/sbin/nginx -s reload"

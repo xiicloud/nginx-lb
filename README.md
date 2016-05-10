@@ -48,3 +48,10 @@ etcdctl set /lb/backends/ci-archiva/ips/192.168.57.55 '{"weight":50}'
 ```
 
 **weight参数目前暂时没有用到**
+
+# 支持的环境变量
+支持通过`MODE`环境变量来决定运行模式。内置了三种运行模式：
+
+- `default` 全自动配置，自动生成upstream和server配置文件，每个upstream对应一个独立的域名
+- `path-mux` 全自动配置，所有服务通过IP访问，不同服务通过URL的前缀进行区分
+- `upstream-only` 只自动生成nginx的upstream配置文件，其它配置文件用户手工配置，这种模式灵活性最高，但需要用户自己有能力维护nginx配置文件
