@@ -87,8 +87,9 @@ func parseConfig() ([]*Service, error) {
 		}
 		if s.BackendRootPath == "" {
 			s.BackendRootPath = "/"
+		} else {
+			s.BackendRootPath = filepath.Clean(s.BackendRootPath) + "/"
 		}
-		s.BackendRootPath = filepath.Clean(s.BackendRootPath) + "/"
 
 		if s.SslCertificate != "" && s.SslCertificateKey != "" {
 			s.EnableSsl = true
