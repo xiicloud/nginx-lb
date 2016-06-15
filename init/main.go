@@ -16,10 +16,10 @@ func main() {
 		reload()
 	}
 
-	if os.Args[1] == "xxx" {
+	if os.Args[1] == "sample-config" {
 		s := Service{
 			Domain:       "pma.test.com",
-			App:          "demo",
+			App:          StrSlice{"demo"},
 			Service:      "app",
 			BackendPort:  80,
 			FrontendPort: 80,

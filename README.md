@@ -20,7 +20,7 @@
   },
   {
     "domain_name": "test.example.com",
-    "app": "test",
+    "app": ["test", "test2"],
     "service": "app",
     "backend_port": 8080,
     "frontend_port": 80,
@@ -30,7 +30,7 @@
 ```
 
 - `domain_name` 对外提供服务的域名
-- `app` 应用名字，在应用详情页面能查看到
+- `app` 应用名字，在应用详情页面能查看到，可以支持多个应用名，用来做粗暴的灰度发布
 - `service` 应用里的服务的名字，在应用详情页面能查看到
 - `backend_port` 后端服务的端口，默认为80
 - `frontend_port` 负载均衡前端监听的端口，默认为80
@@ -54,4 +54,3 @@ etcdctl set /lb/backends/ci-archiva/ips/192.168.57.55 '{"weight":50}'
 
 - `default` 全自动配置，自动生成upstream和server配置文件，每个upstream对应一个独立的域名
 - `path-mux` 全自动配置，所有服务通过IP访问，不同服务通过URL的前缀进行区分
-- `upstream-only` 只自动生成nginx的upstream配置文件，其它配置文件用户手工配置，这种模式灵活性最高，但需要用户自己有能力维护nginx配置文件

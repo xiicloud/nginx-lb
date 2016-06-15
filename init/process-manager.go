@@ -116,6 +116,7 @@ func startConfd() error {
 // confd -onetime -node ${ETCD}
 func confdOnce() error {
 	etcd := getEtcdUrl()
+
 	for i := 0; i < 120; i++ {
 		cmd := exec.Command(confdBin, "-onetime", "-backend", "etcd", "-node", etcd)
 		out, err := cmd.CombinedOutput()

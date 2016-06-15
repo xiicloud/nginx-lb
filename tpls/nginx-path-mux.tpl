@@ -23,27 +23,13 @@ http {
 
     include /etc/nginx/conf.d/*.conf;
 
-    (range .)
-    ($key := printf "%s-%s" .App .Service)
-    ($etcdKey := printf "/%s/ips" $key)
-    upstream ($key) {
-        {{$ips := ls "($etcdKey)"}}
-        {{if len $ips | eq 0}}
-        server 1.1.1.1:80; # placeholder
-        {{else}}
-        {{range $k := ls "($etcdKey)"}}
-        server {{base $k}}:(.BackendPort);
-        {{end}}
-        {{end}}
-    }
-    (end)
-
+    (template "upstreams" .)
+    
     server  {
         listen 80;
         (range .)
-        ($key := printf "%s-%s" .App .Service)
         location (.BackendRootPath) {
-            proxy_pass http://($key);
+            proxy_pass http://(.UpstreamName);
             proxy_redirect    off;
             proxy_set_header  Host             $host;
             proxy_set_header  X-Real-IP        $remote_addr;

@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"text/template"
 )
@@ -21,18 +22,19 @@ const (
 )
 
 type Service struct {
-	Domain            string `json:"domain_name"`
-	App               string `json:"app"`
-	Service           string `json:"service"`
-	BackendPort       int    `json:"backend_port"`
-	FrontendPort      int    `json:"frontend_port"`
-	BackendRootPath   string `json:"backend_root_path"`
-	SslCertificate    string `json:"ssl_certificate"`
-	SslCertificateKey string `json:"ssl_certificate_key"`
-	SslCertPath       string `json:"-"`
-	SslKeyPath        string `json:"-"`
-	EnableSsl         bool   `json:"-"`
-	SslPort           int    `json:"ssl_port"`
+	Domain            string   `json:"domain_name"`
+	App               StrSlice `json:"app"`
+	Service           string   `json:"service"`
+	BackendPort       int      `json:"backend_port"`
+	FrontendPort      int      `json:"frontend_port"`
+	BackendRootPath   string   `json:"backend_root_path"`
+	SslCertificate    string   `json:"ssl_certificate"`
+	SslCertificateKey string   `json:"ssl_certificate_key"`
+	SslCertPath       string   `json:"-"`
+	SslKeyPath        string   `json:"-"`
+	EnableSsl         bool     `json:"-"`
+	SslPort           int      `json:"ssl_port"`
+	UpstreamName      string   `json:"-"`
 }
 
 func genConfig() {
@@ -77,6 +79,11 @@ func parseConfig() ([]*Service, error) {
 	}
 
 	for _, s := range services {
+		if len(s.App) == 0 {
+			log.Printf("app must be provided")
+			continue
+		}
+
 		if s.BackendPort == 0 {
 			s.BackendPort = 80
 		}
@@ -84,7 +91,7 @@ func parseConfig() ([]*Service, error) {
 			s.FrontendPort = 80
 		}
 		if s.Domain == "" {
-			s.Domain = fmt.Sprintf("%s-%s", s.App, s.Service)
+			s.Domain = fmt.Sprintf("%s-%s", strings.Join(s.App, "-"), s.Service)
 		}
 		if s.BackendRootPath == "" {
 			s.BackendRootPath = "/"
@@ -107,6 +114,8 @@ func parseConfig() ([]*Service, error) {
 		if s.SslPort == 0 {
 			s.SslPort = 443
 		}
+
+		s.UpstreamName = fmt.Sprintf("%s-%s", strings.Join(s.App, "-"), s.Service)
 	}
 
 	return services, nil
@@ -117,8 +126,10 @@ func genConfdToml(services []*Service) error {
 	dst := filepath.Join(confdConfigDir, "nginx.toml")
 	tpl := template.Must(getTplObj("confd.tpl").ParseFiles(src))
 	keys := make([]string, len(services))
-	for i, v := range services {
-		keys[i] = fmt.Sprintf("/%s-%s/ips", v.App, v.Service)
+	for _, v := range services {
+		for _, app := range v.App {
+			keys = append(keys, fmt.Sprintf("/%s-%s/ips", app, v.Service))
+		}
 	}
 
 	fp, err := os.OpenFile(dst, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
@@ -137,8 +148,9 @@ func genConfdToml(services []*Service) error {
 
 func genNginxTpl(services []*Service) error {
 	src := filepath.Join(tplPath, getNginxTpl())
+	srcUpstreams := filepath.Join(tplPath, "upstreams.tpl")
 	dst := filepath.Join(confdTplDir, "nginx.tpl")
-	tpl := template.Must(getTplObj("nginx.tpl").ParseFiles(src))
+	tpl := template.Must(getTplObj("nginx.tpl").ParseFiles(src, srcUpstreams))
 
 	fp, err := os.OpenFile(dst, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
@@ -157,8 +169,6 @@ func getTplObj(name string) *template.Template {
 
 func getNginxTpl() string {
 	switch runMode() {
-	case "upstream-only":
-		return "upstreams.tpl"
 	case "path-mux":
 		return "nginx-path-mux.tpl"
 	default:
@@ -167,12 +177,7 @@ func getNginxTpl() string {
 }
 
 func getConfdNginxConfDestPath() string {
-	switch runMode() {
-	case "upstream-only":
-		return filepath.Join(nginxConfDir, "conf.d", "upstreams.conf")
-	default:
-		return filepath.Join(nginxConfDir, "nginx.conf")
-	}
+	return filepath.Join(nginxConfDir, "nginx.conf")
 }
 
 func runMode() string {

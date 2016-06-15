@@ -1,14 +1,14 @@
-(range .)
-($key := printf "%s-%s" .App .Service)
-($etcdKey := printf "/%s/ips" $key)
-upstream ($key) {
-    {{$ips := ls "($etcdKey)"}}
-    {{if len $ips | eq 0}}
-    server 1.1.1.1:80; # placeholder
-    {{else}}
-    {{range $k := ls "($etcdKey)"}}
-    server {{base $k}}:(.BackendPort);
+(define "upstreams")
+
+(range $service := .)
+upstream ($service.UpstreamName) {
+(range $app := $service.App)
+($etcdKey := printf "/%s-%s/ips" $app $service.Service)
+    {{range $ipKey := ls "($etcdKey)"}}
+    server {{base $ipKey}}:($service.BackendPort);
     {{end}}
-    {{end}}
+(end)
 }
+(end)
+
 (end)
