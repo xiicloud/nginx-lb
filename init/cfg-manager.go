@@ -34,7 +34,6 @@ type Service struct {
 	SslKeyPath        string   `json:"-"`
 	EnableSsl         bool     `json:"-"`
 	SslPort           int      `json:"ssl_port"`
-	UpstreamName      string   `json:"-"`
 }
 
 func genConfig() {
@@ -114,8 +113,6 @@ func parseConfig() ([]*Service, error) {
 		if s.SslPort == 0 {
 			s.SslPort = 443
 		}
-
-		s.UpstreamName = fmt.Sprintf("%s-%s", strings.Join(s.App, "-"), s.Service)
 	}
 
 	return services, nil
@@ -128,7 +125,7 @@ func genConfdToml(services []*Service) error {
 	keys := make([]string, len(services))
 	for _, v := range services {
 		for _, app := range v.App {
-			keys = append(keys, fmt.Sprintf("/%s-%s/ips", app, v.Service))
+			keys = append(keys, fmt.Sprintf("/%s-%s/ips", getAppName(app), v.Service))
 		}
 	}
 
@@ -161,9 +158,55 @@ func genNginxTpl(services []*Service) error {
 	return tpl.Execute(fp, services)
 }
 
+func isBackup(app string) bool {
+	return strings.Contains(app, ":")
+}
+
+func ngxBackup(app string) string {
+	if isBackup(app) {
+		return " backup"
+	}
+	return ""
+}
+
+func getAppName(app string) string {
+	if isBackup(app) {
+		return strings.Split(app, ":")[0]
+	}
+	return app
+}
+
+func getLbKey(app, service string) string {
+	return fmt.Sprintf("/%s-%s/ips", getAppName(app), service)
+}
+
+// split is a version of strings.Split that can be piped
+func split(sep, s string) []string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return []string{}
+	}
+	return strings.Split(s, sep)
+}
+
+func upstreamName(apps []string, service string) string {
+	name := fmt.Sprintf("%s-%s", strings.Join(apps, "-"), service)
+	return strings.Replace(name, ":backup", "", -1)
+}
+
+var tplFuncs = map[string]interface{}{
+	"split":        strings.Split,
+	"isBackup":     isBackup,
+	"getAppName":   getAppName,
+	"getLbKey":     getLbKey,
+	"ngxBackup":    ngxBackup,
+	"upstreamName": upstreamName,
+}
+
 func getTplObj(name string) *template.Template {
 	tpl := template.New(name)
 	tpl.Delims("(", ")")
+	tpl.Funcs(tplFuncs)
 	return tpl
 }
 

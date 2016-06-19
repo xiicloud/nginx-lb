@@ -29,7 +29,7 @@ http {
         listen 80;
         (range .)
         location (.BackendRootPath) {
-            proxy_pass http://(.UpstreamName);
+            proxy_pass http://(upstreamName .App .Service);
             proxy_redirect    off;
             proxy_set_header  Host             $host;
             proxy_set_header  X-Real-IP        $remote_addr;

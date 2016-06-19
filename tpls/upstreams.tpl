@@ -1,11 +1,11 @@
 (define "upstreams")
 
 (range $service := .)
-upstream ($service.UpstreamName) {
+upstream (upstreamName .App $service.Service) {
 (range $app := $service.App)
-($etcdKey := printf "/%s-%s/ips" $app $service.Service)
+($etcdKey := getLbKey $app $service.Service)
     {{range $ipKey := ls "($etcdKey)"}}
-    server {{base $ipKey}}:($service.BackendPort);
+    server {{base $ipKey}}:($service.BackendPort)(ngxBackup $app);
     {{end}}
 (end)
 }

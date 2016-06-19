@@ -30,7 +30,7 @@ http {
         listen (.FrontendPort);
         server_name (.Domain);
         location / {
-            proxy_pass http://(.UpstreamName)(.BackendRootPath);
+            proxy_pass http://(upstreamName .App .Service)(.BackendRootPath);
             proxy_redirect    off;
             proxy_set_header  Host             $host;
             proxy_set_header  X-Real-IP        $remote_addr;
@@ -47,7 +47,7 @@ http {
         ssl_session_timeout 10m;
         
         location / {
-            proxy_pass http://(.UpstreamName)(.BackendRootPath);
+            proxy_pass http://(upstreamName .App .Service)(.BackendRootPath);
             proxy_redirect    off;
             proxy_set_header  Host             $host;
             proxy_set_header  X-Real-IP        $remote_addr;
