@@ -14,10 +14,12 @@
     {
       "domain_name": "demo.example.com",
       "frontend_port": 80,
+      "opaque": "access_log off;",
       "routes": {
         "/": {
           "app": "myapp",
           "backend_path": "/v2",
+          "opaque": "if ( $uri ~ /404 ) {\n return 404;\n }",
           "backup": {
             "app": "myapp2",
             "service": "api"
@@ -41,18 +43,20 @@
 
 - `domain_name` 对外提供服务的域名
 - `frontend_port` 负载均衡前端监听的端口，默认为80
+- `opaque` 用户自定义的需要放到nginx 配置文件`server`里面的配置项
+- `routes` 转发规则，key表示供前端访问的URL前缀，value表示对应的后端
 - `ssl_certificate` SSL证书的内容
 - `ssl_certificate_key` SSL证书密钥
 - `ssl_port` SSL监听端口
-- `routes` 转发规则，key表示供前端访问的URL前缀，value表示对应的后端
 
 `routes`下面每一条记录(route)的字段说明：
 
 - `app` 应用名字，在应用详情页面能查看到
-- `service` 应用里的服务的名字，在应用详情页面能查看到
-- `port` 后端服务的端口，默认为80
 - `backend_path` 后端服务根目录的路径，默认为`/`
 - `backup` 如果配置了这一项，会把这里面配置的服务当作nginx upstream配置里的backup servers. 其结构与routes下面的每一条记录结构一致
+- `opaque` 用户自定义的需要放到nginx 配置文件`location`里面的配置项
+- `port` 后端服务的端口，默认为80
+- `service` 应用里的服务的名字，在应用详情页面能查看到
 
 
 以上配置文件示例表明：

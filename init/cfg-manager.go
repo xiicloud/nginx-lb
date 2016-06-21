@@ -27,6 +27,8 @@ type Route struct {
 	Port        int    `json:"port"`
 	BackendPath string `json:"backend_path"`
 	Backup      *Route `json:"backup"`
+	// Any config directives passed to the `location` config.
+	Opaque string `json:"opaque"`
 }
 
 func (b *Route) fixup() error {
@@ -58,6 +60,9 @@ type Server struct {
 
 	// The key is the URL that will be exposed to the frontend user.
 	Routes map[string]*Route `json:"Routes"`
+
+	// Any config directives passed to the `server` config.
+	Opaque string `json:"opaque"`
 }
 
 type Config struct {

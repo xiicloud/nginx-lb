@@ -29,9 +29,12 @@ http {
     server  {
         listen ($server.FrontendPort);
         server_name ($server.DomainName);
-        (- range $uri, $route := $server.Routes)
+        ($server.Opaque)
+
+        (range $uri, $route := $server.Routes)
         
         location ($uri) {
+            ($route.Opaque)
             proxy_pass http://(upstreamName $route)($route.BackendPath);
             proxy_redirect    off;
             proxy_set_header  Host             $host;
@@ -48,10 +51,12 @@ http {
         ssl_certificate_key (.SslKeyPath);
         ssl_session_cache   shared:SSL:10m;
         ssl_session_timeout 10m;
+        ($server.Opaque)
         
         (- range $uri, $route := $server.Routes)
         
         location ($uri) {
+            ($route.Opaque)
             proxy_pass http://(upstreamName $route)($route.BackendPath);
             proxy_redirect    off;
             proxy_set_header  Host             $host;
