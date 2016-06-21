@@ -4,10 +4,12 @@
     {
       "domain_name": "demo.example.com",
       "frontend_port": 80,
+      "opaque": "access_log off;",
       "routes": {
         "/": {
           "app": "myapp",
           "backend_path": "/v2",
+          "opaque": "if ( $uri ~ /404 ) {\n return 404;\n }",
           "backup": {
             "app": "myapp2",
             "service": "api"
