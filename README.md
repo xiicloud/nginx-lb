@@ -40,6 +40,8 @@
 }
 ```
 
+`servers`这个数组里各字段的说明：
+
 - `domain_name` 对外提供服务的域名
 - `frontend_port` 负载均衡前端监听的端口，默认为80
 - `opaque` 用户自定义的需要放到nginx 配置文件`server`里面的配置项
