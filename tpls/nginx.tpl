@@ -23,37 +23,43 @@ http {
 
     include /etc/nginx/conf.d/*.conf;
 
-    (template "upstreams" .)
+    (template "upstreams" . -)
 
-    (range .)
+    (range $server := .)
     server  {
-        listen (.FrontendPort);
-        server_name (.Domain);
-        location / {
-            proxy_pass http://(upstreamName .App .Service)(.BackendRootPath);
+        listen ($server.FrontendPort);
+        server_name ($server.DomainName);
+        (- range $uri, $route := $server.Routes)
+        
+        location ($uri) {
+            proxy_pass http://(upstreamName $route)($route.BackendPath);
             proxy_redirect    off;
             proxy_set_header  Host             $host;
             proxy_set_header  X-Real-IP        $remote_addr;
             proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
         }
+        (- end)
     }
     (if .EnableSsl)
     server  {
         listen (.SslPort) ssl;
-        server_name (.Domain);
+        server_name (.DomainName);
         ssl_certificate     (.SslCertPath);
         ssl_certificate_key (.SslKeyPath);
         ssl_session_cache   shared:SSL:10m;
         ssl_session_timeout 10m;
         
-        location / {
-            proxy_pass http://(upstreamName .App .Service)(.BackendRootPath);
+        (- range $uri, $route := $server.Routes)
+        
+        location ($uri) {
+            proxy_pass http://(upstreamName $route)($route.BackendPath);
             proxy_redirect    off;
             proxy_set_header  Host             $host;
             proxy_set_header  X-Real-IP        $remote_addr;
             proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
         }
+        (- end)
     }
-    (end)
-    (end)
+    (end -)
+    (- end)
 }

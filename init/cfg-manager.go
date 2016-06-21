@@ -21,35 +21,64 @@ const (
 	nginxConfDir   = "/etc/nginx"
 )
 
-type Service struct {
-	Domain            string   `json:"domain_name"`
-	App               StrSlice `json:"app"`
-	Service           string   `json:"service"`
-	BackendPort       int      `json:"backend_port"`
-	FrontendPort      int      `json:"frontend_port"`
-	BackendRootPath   string   `json:"backend_root_path"`
-	SslCertificate    string   `json:"ssl_certificate"`
-	SslCertificateKey string   `json:"ssl_certificate_key"`
-	SslCertPath       string   `json:"-"`
-	SslKeyPath        string   `json:"-"`
-	EnableSsl         bool     `json:"-"`
-	SslPort           int      `json:"ssl_port"`
+type Route struct {
+	App         string `json:"app"`
+	Service     string `json:"service"`
+	Port        int    `json:"port"`
+	BackendPath string `json:"backend_path"`
+	Backup      *Route `json:"backup"`
+}
+
+func (b *Route) fixup() error {
+	if b.Port == 0 {
+		b.Port = 80
+	}
+
+	if b.BackendPath == "" {
+		b.BackendPath = "/"
+	} else {
+		b.BackendPath = filepath.Clean(b.BackendPath) + "/"
+	}
+
+	if b.Backup != nil {
+		return b.Backup.fixup()
+	}
+	return nil
+}
+
+type Server struct {
+	DomainName        string `json:"domain_name"`
+	FrontendPort      int    `json:"frontend_port"`
+	SslCertificate    string `json:"ssl_certificate"`
+	SslCertificateKey string `json:"ssl_certificate_key"`
+	SslPort           int    `json:"ssl_port"`
+	SslCertPath       string `json:"-"`
+	SslKeyPath        string `json:"-"`
+	EnableSsl         bool   `json:"-"`
+
+	// The key is the URL that will be exposed to the frontend user.
+	Routes map[string]*Route `json:"Routes"`
+}
+
+type Config struct {
+	Version string    `json:"version"`
+	Servers []*Server `json:"servers"`
 }
 
 func genConfig() {
 	os.MkdirAll(confdTplDir, 0755)
 	os.MkdirAll(confdConfigDir, 0755)
 	os.MkdirAll(sslCertDir, 0755)
-	services, err := parseConfig()
+	config, err := parseConfig()
 	if err != nil {
 		log.Fatalf("Failed to parse config file %s: %v", cfgPath, err)
 	}
 
-	if err := genConfdToml(services); err != nil {
+	if err := genConfdToml(config.Servers); err != nil {
 		log.Fatalf("Failed to generate confd toml: %v", err)
 	}
 
-	if err := genNginxTpl(services); err != nil {
+	if err := genNginxTpl(config.Servers); err != nil {
 		log.Fatalf("Failed to generate nginx.tpl: %v", err)
 	}
 }
@@ -64,44 +93,36 @@ func reload() {
 	}
 }
 
-func parseConfig() ([]*Service, error) {
-	services := []*Service{}
+func parseConfig() (*Config, error) {
+	cfg := &Config{}
 	fp, err := os.Open(cfgPath)
 	if err != nil {
 		return nil, err
 	}
 	defer fp.Close()
 
-	err = json.NewDecoder(fp).Decode(&services)
+	err = json.NewDecoder(fp).Decode(cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, s := range services {
-		if len(s.App) == 0 {
-			log.Printf("app must be provided")
+	for i, s := range cfg.Servers {
+		if len(s.Routes) == 0 {
+			log.Printf("Routes must contain at least 1 items")
 			continue
 		}
 
-		if s.BackendPort == 0 {
-			s.BackendPort = 80
-		}
 		if s.FrontendPort == 0 {
 			s.FrontendPort = 80
 		}
-		if s.Domain == "" {
-			s.Domain = fmt.Sprintf("%s-%s", strings.Join(s.App, "-"), s.Service)
-		}
-		if s.BackendRootPath == "" {
-			s.BackendRootPath = "/"
-		} else {
-			s.BackendRootPath = filepath.Clean(s.BackendRootPath) + "/"
+		if s.DomainName == "" {
+			s.DomainName = fmt.Sprintf("%d.example.com", i)
 		}
 
 		if s.SslCertificate != "" && s.SslCertificateKey != "" {
 			s.EnableSsl = true
-			s.SslCertPath = filepath.Join(sslCertDir, s.Domain+".pem")
-			s.SslKeyPath = filepath.Join(sslCertDir, s.Domain+".key")
+			s.SslCertPath = filepath.Join(sslCertDir, s.DomainName+".pem")
+			s.SslKeyPath = filepath.Join(sslCertDir, s.DomainName+".key")
 			if err := ioutil.WriteFile(s.SslCertPath, []byte(s.SslCertificate), 0400); err != nil {
 				return nil, err
 			}
@@ -113,19 +134,23 @@ func parseConfig() ([]*Service, error) {
 		if s.SslPort == 0 {
 			s.SslPort = 443
 		}
+
+		for _, b := range s.Routes {
+			b.fixup()
+		}
 	}
 
-	return services, nil
+	return cfg, nil
 }
 
-func genConfdToml(services []*Service) error {
+func genConfdToml(servers []*Server) error {
 	src := filepath.Join(tplPath, "confd.tpl")
 	dst := filepath.Join(confdConfigDir, "nginx.toml")
 	tpl := template.Must(getTplObj("confd.tpl").ParseFiles(src))
-	keys := make([]string, len(services))
-	for _, v := range services {
-		for _, app := range v.App {
-			keys = append(keys, fmt.Sprintf("/%s-%s/ips", getAppName(app), v.Service))
+	keys := make([]string, len(servers))
+	for _, s := range servers {
+		for _, b := range s.Routes {
+			keys = append(keys, fmt.Sprintf("/%s-%s/ips", b.App, b.Service))
 		}
 	}
 
@@ -143,7 +168,7 @@ func genConfdToml(services []*Service) error {
 	return tpl.Execute(fp, vars)
 }
 
-func genNginxTpl(services []*Service) error {
+func genNginxTpl(servers []*Server) error {
 	src := filepath.Join(tplPath, getNginxTpl())
 	srcUpstreams := filepath.Join(tplPath, "upstreams.tpl")
 	dst := filepath.Join(confdTplDir, "nginx.tpl")
@@ -155,29 +180,11 @@ func genNginxTpl(services []*Service) error {
 	}
 	defer fp.Close()
 
-	return tpl.Execute(fp, services)
+	return tpl.Execute(fp, servers)
 }
 
-func isBackup(app string) bool {
-	return strings.Contains(app, ":")
-}
-
-func ngxBackup(app string) string {
-	if isBackup(app) {
-		return " backup"
-	}
-	return ""
-}
-
-func getAppName(app string) string {
-	if isBackup(app) {
-		return strings.Split(app, ":")[0]
-	}
-	return app
-}
-
-func getLbKey(app, service string) string {
-	return fmt.Sprintf("/%s-%s/ips", getAppName(app), service)
+func getLbKey(b *Route) string {
+	return fmt.Sprintf("/%s-%s/ips", b.App, b.Service)
 }
 
 // split is a version of strings.Split that can be piped
@@ -189,18 +196,26 @@ func split(sep, s string) []string {
 	return strings.Split(s, sep)
 }
 
-func upstreamName(apps []string, service string) string {
-	name := fmt.Sprintf("%s-%s", strings.Join(apps, "-"), service)
-	return strings.Replace(name, ":backup", "", -1)
+func upstreamName(r *Route) string {
+	names := []string{fmt.Sprintf("%s-%s", r.App, r.Service)}
+	if r.Backup != nil {
+		names = append(names, fmt.Sprintf("%s-%s", r.Backup.App, r.Backup.Service))
+	}
+	return strings.Join(names, "-")
+}
+
+func normalizeURI(uri string) string {
+	if uri == "" {
+		return "/"
+	}
+	return strings.TrimRight(filepath.Clean(uri), "/") + "/"
 }
 
 var tplFuncs = map[string]interface{}{
-	"split":        strings.Split,
-	"isBackup":     isBackup,
-	"getAppName":   getAppName,
+	"split":        split,
 	"getLbKey":     getLbKey,
-	"ngxBackup":    ngxBackup,
 	"upstreamName": upstreamName,
+	"normalizeURI": normalizeURI,
 }
 
 func getTplObj(name string) *template.Template {
@@ -211,18 +226,9 @@ func getTplObj(name string) *template.Template {
 }
 
 func getNginxTpl() string {
-	switch runMode() {
-	case "path-mux":
-		return "nginx-path-mux.tpl"
-	default:
-		return "nginx.tpl"
-	}
+	return "nginx.tpl"
 }
 
 func getConfdNginxConfDestPath() string {
 	return filepath.Join(nginxConfDir, "nginx.conf")
-}
-
-func runMode() string {
-	return os.Getenv("MODE")
 }

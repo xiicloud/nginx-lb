@@ -1,4 +1,4 @@
-FROM nginx
+FROM nginx:1.11.1
 MAINTAINER Shijiang Wei<mountkin@gmail.com>
 
 RUN apt-get update && \

@@ -1,14 +1,17 @@
-(define "upstreams")
+(define "upstreams" -)
 
-(range $service := .)
-upstream (upstreamName .App $service.Service) {
-(range $app := $service.App)
-($etcdKey := getLbKey $app $service.Service)
-    {{range $ipKey := ls "($etcdKey)"}}
-    server {{base $ipKey}}:($service.BackendPort)(ngxBackup $app);
-    {{end}}
-(end)
+(range $server := . -)
+(range $route := $server.Routes)
+upstream (upstreamName $route) {
+  {{range $ipKey := ls "(getLbKey $route)"}}
+    server {{base $ipKey}}:($route.Port);
+  {{end}}
+  (- if $route.Backup -)
+  {{range $ipKey := ls "(getLbKey $route.Backup)"}}
+    server {{base $ipKey}}:($route.Backup.Port) backup;
+  {{end}}
+  (- end -)
 }
 (end)
-
-(end)
+(- end )
+(- end)
