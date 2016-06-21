@@ -1,5 +1,5 @@
 # 工作原理
-基于nginx v1.11.1镜像和confd实现。
+基于nginx v1.11.1镜像和confd实现，此LB必须运行在容器里。
 
 1. 通过容器的入口进程自动生成`/etc/confd/conf.d/nginx.toml`，该程序读取`/etc/csphere-services.json`获取需要配置哪些`upstream`和`server_name`
 2. 通过配置中心管理`/etc/csphere-services.json`
