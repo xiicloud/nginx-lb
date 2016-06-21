@@ -15,9 +15,13 @@
           "port": 80,
           "service": "api"
         },
-        "/suburl": {
+        "/suburl/": {
           "app": "myapp3",
           "service": "web"
+        },
+        "~ /other.*": {
+            "app": "test",
+            "service": "api"
         }
       },
       "ssl_certificate": "-----BEGIN CERTIFICATE-----\nMIICKTCCAZICCQCBO2ekFdKngDANBgkqhkiG9w0BAQsFADBZMQswCQYDVQQGEwJD\nTjEQMA4GA1UECAwHQmVpamluZzEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQ\ndHkgTHRkMRUwEwYDVQQDDAxwbWEudGVzdC5jb20wHhcNMTYwNTAzMDQxOTUyWhcN\nMTcwNTA0MDQxOTUyWjBZMQswCQYDVQQGEwJDTjEQMA4GA1UECAwHQmVpamluZzEh\nMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMRUwEwYDVQQDDAxwbWEu\ndGVzdC5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALo7afOGNwyXqN24\nViyG+HQG4In0O4SqrAQr6WUOg2g95rf7qSEG6U4o+wO5BM8nd6wzW0JnNqTxKXpf\nnV2Ebub0uoITUHtbFMRSEYfLShQqbKBltnk09P9p4IcVhM5vUd+G9reGagaH84bt\nP2bSZ5JmKBsiUf277b4ZlM/nIS4rAgMBAAEwDQYJKoZIhvcNAQELBQADgYEAOp9q\noNF/sGwEJzUKkrZ9jNfr9nvcVwsR9VajsB0cQW859IQ75r0P80NwPwJ4qbIMNsid\n/1qwqzZlnYvOm01176DQTCgRC42r4vbLMKzNR4Xf6O25gwWaa2ZSSpLNQLxauKSg\n2h/qgz7Rfn7rYMYZmVLNnnJqujr8GbZ4cKyuy1w=\n-----END CERTIFICATE-----",
