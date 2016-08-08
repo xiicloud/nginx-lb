@@ -1,7 +1,7 @@
 # nginx-lb
 具有自动注册功能的nginx负载均衡。
 
-Docker image: `index.csphere.cn/csphere/nginx-lb:1.11.1.1`
+Docker image: `index.csphere.cn/csphere/nginx-lb:1.11.1.2`
 # 工作原理
 基于nginx v1.11.1镜像和confd实现，此LB必须运行在容器里。
 
