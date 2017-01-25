@@ -5,7 +5,7 @@ error_log  /var/log/nginx/error.log warn;
 pid        /var/run/nginx.pid;
 
 events {
-    worker_connections  1024;
+    worker_connections  10240;
 }
 
 http {
@@ -20,6 +20,7 @@ http {
     sendfile        on;
     keepalive_timeout  65;
     gzip  on;
+    server_names_hash_bucket_size 128;
 
     include /etc/nginx/conf.d/*.conf;
 
