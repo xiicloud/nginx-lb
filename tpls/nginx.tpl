@@ -33,7 +33,7 @@ http {
         ($server.Opaque)
 
         (range $uri, $route := $server.Routes)
-        
+
         location ($uri) {
             ($route.Opaque)
             proxy_pass http://(upstreamName $route)($route.BackendPath);
@@ -53,9 +53,9 @@ http {
         ssl_session_cache   shared:SSL:10m;
         ssl_session_timeout 10m;
         ($server.Opaque)
-        
+
         (- range $uri, $route := $server.Routes)
-        
+
         location ($uri) {
             ($route.Opaque)
             proxy_pass http://(upstreamName $route)($route.BackendPath);

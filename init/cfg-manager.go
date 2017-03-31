@@ -21,6 +21,12 @@ const (
 	nginxConfDir   = "/etc/nginx"
 )
 
+type SSLCert struct {
+	Name string `json:"name"`
+	Cert string `json:"cert"`
+	Key  string `json:"key"`
+}
+
 type Route struct {
 	App         string `json:"app"`
 	Service     string `json:"service"`
@@ -49,14 +55,18 @@ func (b *Route) fixup() error {
 }
 
 type Server struct {
-	DomainName        string `json:"domain_name"`
-	FrontendPort      int    `json:"frontend_port"`
+	DomainName   string `json:"domain_name"`
+	FrontendPort int    `json:"frontend_port"`
+
+	// SslCertificate and SslCertificateKey are deprecated. Use SSLCertRef instead.
 	SslCertificate    string `json:"ssl_certificate"`
 	SslCertificateKey string `json:"ssl_certificate_key"`
-	SslPort           int    `json:"ssl_port"`
-	SslCertPath       string `json:"-"`
-	SslKeyPath        string `json:"-"`
-	EnableSsl         bool   `json:"-"`
+
+	SSLCertName string `json:"ssl_cert_name"`
+	SslPort     int    `json:"ssl_port"`
+	SslCertPath string `json:"-"`
+	SslKeyPath  string `json:"-"`
+	EnableSsl   bool   `json:"-"`
 
 	// The key is the URL that will be exposed to the frontend user.
 	Routes map[string]*Route `json:"Routes"`
@@ -66,8 +76,9 @@ type Server struct {
 }
 
 type Config struct {
-	Version string    `json:"version"`
-	Servers []*Server `json:"servers"`
+	Version  string     `json:"version"`
+	Servers  []*Server  `json:"servers"`
+	SSLCerts []*SSLCert `json:"ssl_certs"`
 }
 
 func genConfig() {
@@ -124,6 +135,14 @@ func parseConfig() (*Config, error) {
 			s.DomainName = fmt.Sprintf("%d.example.com", i)
 		}
 
+		if s.SSLCertName != "" {
+			cert := cfg.findCertByName(s.SSLCertName)
+			if cert != nil {
+				s.SslCertificate = cert.Cert
+				s.SslCertificateKey = cert.Key
+			}
+		}
+
 		if s.SslCertificate != "" && s.SslCertificateKey != "" {
 			s.EnableSsl = true
 			s.SslCertPath = filepath.Join(sslCertDir, s.DomainName+".pem")
@@ -146,6 +165,15 @@ func parseConfig() (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+func (config *Config) findCertByName(name string) *SSLCert {
+	for _, cert := range config.SSLCerts {
+		if cert.Name == name {
+			return cert
+		}
+	}
+	return nil
 }
 
 func genConfdToml(servers []*Server) error {
