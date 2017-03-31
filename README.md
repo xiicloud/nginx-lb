@@ -35,9 +35,15 @@ Docker image: `index.csphere.cn/csphere/nginx-lb:1.11.1.2`
           "service": "api"
         }
       },
-      "ssl_certificate": "-----BEGIN CERTIFICATE-----\nMIICKTCCAZICCQCBO2ekFdKngDANBgkqhkiG9w0BAQsFADBZMQswCQYDVQQGEwJD\nTjEQMA4GA1UECAwHQmVpamluZzEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQ\ndHkgTHRkMRUwEwYDVQQDDAxwbWEudGVzdC5jb20wHhcNMTYwNTAzMDQxOTUyWhcN\nMTcwNTA0MDQxOTUyWjBZMQswCQYDVQQGEwJDTjEQMA4GA1UECAwHQmVpamluZzEh\nMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMRUwEwYDVQQDDAxwbWEu\ndGVzdC5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALo7afOGNwyXqN24\nViyG+HQG4In0O4SqrAQr6WUOg2g95rf7qSEG6U4o+wO5BM8nd6wzW0JnNqTxKXpf\nnV2Ebub0uoITUHtbFMRSEYfLShQqbKBltnk09P9p4IcVhM5vUd+G9reGagaH84bt\nP2bSZ5JmKBsiUf277b4ZlM/nIS4rAgMBAAEwDQYJKoZIhvcNAQELBQADgYEAOp9q\noNF/sGwEJzUKkrZ9jNfr9nvcVwsR9VajsB0cQW859IQ75r0P80NwPwJ4qbIMNsid\n/1qwqzZlnYvOm01176DQTCgRC42r4vbLMKzNR4Xf6O25gwWaa2ZSSpLNQLxauKSg\n2h/qgz7Rfn7rYMYZmVLNnnJqujr8GbZ4cKyuy1w=\n-----END CERTIFICATE-----",
-      "ssl_certificate_key": "-----BEGIN RSA PRIVATE KEY-----\nMIICXQIBAAKBgQC6O2nzhjcMl6jduFYshvh0BuCJ9DuEqqwEK+llDoNoPea3+6kh\nBulOKPsDuQTPJ3esM1tCZzak8Sl6X51dhG7m9LqCE1B7WxTEUhGHy0oUKmygZbZ5\nNPT/aeCHFYTOb1Hfhva3hmoGh/OG7T9m0meSZigbIlH9u+2+GZTP5yEuKwIDAQAB\nAoGAbNZeRFkzAOP9Z57cledHep+uSFF5Gz6Xi1SScWH7AEf0959XJ5sfbHNcx78w\nhVR+hx/4fKVPdTQP1pncoRPNr6GcK6+9NhURiBy4oaWIAlswvuMeCFBJp4KBI3np\n/hQIXKHZ4hNasD5SzHBo5bJOG6P5577KD4t39QFcBMGy8xECQQDz77IbLXOG+UWJ\nSpw84HUJxzWAc7h9IgjkybJQIDoHvgmsYIjLFnLimwIbyvMlPBnyAopvZoO5tabX\nWfGmQHJpAkEAw3Eqe7XG2j023SUDe8slqOIlnivdP95M2tACOKIvbJFB83zHDK2C\n46cdyoqfI/bLimnxgPxYMq5CTr33I7RhcwJBAJTlU17ZcHILx5EU1KcoDuiICzU7\n7XmcA7e7Ebds5F8DdZ4dUoI8UqXVHgVe7OlmdSPOvzdeaLs7kPpUMXdcUTkCQGG5\numZ1dGM37LETivRhlgkmW20FvfHrtD5NeG7dGh2NXI7lu5opQKOYsprOSdjv1ML3\nSp0WkPt2iw1Yi7U8wuUCQQCh3Z/svnkDSxBrexFUwt5RLhF5YBJUtIgeOBQ/wlDp\nhQPBEwDsQoM9LxnEmVNyzeF8Yz9RJ6gANpnZYLszWrGk\n-----END RSA PRIVATE KEY-----",
+      "ssl_cert_name": "demo",
       "ssl_port": 443
+    }
+  ],
+  "ssl_certs": [
+    {
+      "name": "demo",
+      "cert": "-----BEGIN CERTIFICATE-----\nMIICKTCCAZICCQCBO2ekFdKngDANBgkqhkiG9w0BAQsFADBZMQswCQYDVQQGEwJD\nTjEQMA4GA1UECAwHQmVpamluZzEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQ\ndHkgTHRkMRUwEwYDVQQDDAxwbWEudGVzdC5jb20wHhcNMTYwNTAzMDQxOTUyWhcN\nMTcwNTA0MDQxOTUyWjBZMQswCQYDVQQGEwJDTjEQMA4GA1UECAwHQmVpamluZzEh\nMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMRUwEwYDVQQDDAxwbWEu\ndGVzdC5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALo7afOGNwyXqN24\nViyG+HQG4In0O4SqrAQr6WUOg2g95rf7qSEG6U4o+wO5BM8nd6wzW0JnNqTxKXpf\nnV2Ebub0uoITUHtbFMRSEYfLShQqbKBltnk09P9p4IcVhM5vUd+G9reGagaH84bt\nP2bSZ5JmKBsiUf277b4ZlM/nIS4rAgMBAAEwDQYJKoZIhvcNAQELBQADgYEAOp9q\noNF/sGwEJzUKkrZ9jNfr9nvcVwsR9VajsB0cQW859IQ75r0P80NwPwJ4qbIMNsid\n/1qwqzZlnYvOm01176DQTCgRC42r4vbLMKzNR4Xf6O25gwWaa2ZSSpLNQLxauKSg\n2h/qgz7Rfn7rYMYZmVLNnnJqujr8GbZ4cKyuy1w=\n-----END CERTIFICATE-----",
+      "key": "-----BEGIN RSA PRIVATE KEY-----\nMIICXQIBAAKBgQC6O2nzhjcMl6jduFYshvh0BuCJ9DuEqqwEK+llDoNoPea3+6kh\nBulOKPsDuQTPJ3esM1tCZzak8Sl6X51dhG7m9LqCE1B7WxTEUhGHy0oUKmygZbZ5\nNPT/aeCHFYTOb1Hfhva3hmoGh/OG7T9m0meSZigbIlH9u+2+GZTP5yEuKwIDAQAB\nAoGAbNZeRFkzAOP9Z57cledHep+uSFF5Gz6Xi1SScWH7AEf0959XJ5sfbHNcx78w\nhVR+hx/4fKVPdTQP1pncoRPNr6GcK6+9NhURiBy4oaWIAlswvuMeCFBJp4KBI3np\n/hQIXKHZ4hNasD5SzHBo5bJOG6P5577KD4t39QFcBMGy8xECQQDz77IbLXOG+UWJ\nSpw84HUJxzWAc7h9IgjkybJQIDoHvgmsYIjLFnLimwIbyvMlPBnyAopvZoO5tabX\nWfGmQHJpAkEAw3Eqe7XG2j023SUDe8slqOIlnivdP95M2tACOKIvbJFB83zHDK2C\n46cdyoqfI/bLimnxgPxYMq5CTr33I7RhcwJBAJTlU17ZcHILx5EU1KcoDuiICzU7\n7XmcA7e7Ebds5F8DdZ4dUoI8UqXVHgVe7OlmdSPOvzdeaLs7kPpUMXdcUTkCQGG5\numZ1dGM37LETivRhlgkmW20FvfHrtD5NeG7dGh2NXI7lu5opQKOYsprOSdjv1ML3\nSp0WkPt2iw1Yi7U8wuUCQQCh3Z/svnkDSxBrexFUwt5RLhF5YBJUtIgeOBQ/wlDp\nhQPBEwDsQoM9LxnEmVNyzeF8Yz9RJ6gANpnZYLszWrGk\n-----END RSA PRIVATE KEY-----"
     }
   ],
   "version": "0.1"
@@ -50,9 +56,8 @@ Docker image: `index.csphere.cn/csphere/nginx-lb:1.11.1.2`
 - `frontend_port` 负载均衡前端监听的端口，默认为80
 - `opaque` 用户自定义的需要放到nginx 配置文件`server`里面的配置项
 - `routes` 转发规则，key表示供前端访问的URL前缀，value表示对应的后端
-- `ssl_certificate` SSL证书的内容
-- `ssl_certificate_key` SSL证书密钥
-- `ssl_port` SSL监听端口
+- `ssl_cert_name` SSL证书的名字，需要与`ssl_certs`里面配置的名字一致
+- `ssl_port` SSL监听端口，只有配置了SSL证书此参数才有意义
 
 `routes`下面每一条记录(route)的字段说明：
 
@@ -63,6 +68,11 @@ Docker image: `index.csphere.cn/csphere/nginx-lb:1.11.1.2`
 - `port` 后端服务的端口，默认为80
 - `service` 应用里的服务的名字，在应用详情页面能查看到
 
+`ssl_certs`是个数组，用于配置SSL证书。每个证书需要设置个名字，在`servers`里可以通过此名字进行引用。
+
+- `name` SSL证书的名字，供`servers`里引用。用户需要自己保证证书名字的唯一性。
+- `cert` SSL证书的内容
+- `key` SSL证书密钥
 
 如果etcd中设置以下key: **(如果是使用cSphere平台，创建相关应用即可，无需手工设置以下key)**
 
