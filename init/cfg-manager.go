@@ -183,7 +183,9 @@ func genConfdToml(servers []*Server) error {
 	keys := make([]string, len(servers))
 	for _, s := range servers {
 		for _, b := range s.Routes {
-			keys = append(keys, fmt.Sprintf("/%s-%s/ips", b.App, b.Service))
+			for _, s := range strings.Split(b.Service, ",") {
+				keys = append(keys, fmt.Sprintf("/%s-%s/ips", b.App, s))
+			}
 		}
 	}
 
@@ -216,8 +218,8 @@ func genNginxTpl(servers []*Server) error {
 	return tpl.Execute(fp, servers)
 }
 
-func getLbKey(b *Route) string {
-	return fmt.Sprintf("/%s-%s/ips", b.App, b.Service)
+func getLbKey(b *Route, s string) string {
+	return fmt.Sprintf("/%s-%s/ips", b.App, s)
 }
 
 // split is a version of strings.Split that can be piped
@@ -230,9 +232,9 @@ func split(sep, s string) []string {
 }
 
 func upstreamName(r *Route) string {
-	names := []string{fmt.Sprintf("%s-%s", r.App, r.Service)}
+	names := []string{fmt.Sprintf("%s-%s", r.App, strings.Replace(r.Service, ",", "-", -1))}
 	if r.Backup != nil {
-		names = append(names, fmt.Sprintf("%s-%s", r.Backup.App, r.Backup.Service))
+		names = append(names, fmt.Sprintf("%s-%s", r.Backup.App, strings.Replace(r.Backup.Service, ",", "-", -1)))
 	}
 	return strings.Join(names, "-")
 }
