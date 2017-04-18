@@ -36,7 +36,7 @@ http {
 
         location ($uri) {
             ($route.Opaque)
-            proxy_pass http://(upstreamName $route)($route.BackendPath);
+            proxy_pass http://(upstreamName $route $server.DomainName $uri)($route.BackendPath);
             proxy_redirect    off;
             proxy_set_header  Host             $host;
             proxy_set_header  X-Real-IP        $remote_addr;
@@ -58,7 +58,7 @@ http {
 
         location ($uri) {
             ($route.Opaque)
-            proxy_pass http://(upstreamName $route)($route.BackendPath);
+            proxy_pass http://(upstreamName $route $server.DomainName $uri)($route.BackendPath);
             proxy_redirect    off;
             proxy_set_header  Host             $host;
             proxy_set_header  X-Real-IP        $remote_addr;

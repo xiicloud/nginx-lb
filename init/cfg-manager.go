@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -231,12 +233,13 @@ func split(sep, s string) []string {
 	return strings.Split(s, sep)
 }
 
-func upstreamName(r *Route) string {
-	names := []string{fmt.Sprintf("%s-%s", r.App, strings.Replace(r.Service, ",", "-", -1))}
+func upstreamName(r *Route, domain, path string) string {
+	names := []string{path, domain,
+		fmt.Sprintf("%s-%s", r.App, strings.Replace(r.Service, ",", "-", -1))}
 	if r.Backup != nil {
 		names = append(names, fmt.Sprintf("%s-%s", r.Backup.App, strings.Replace(r.Backup.Service, ",", "-", -1)))
 	}
-	return strings.Join(names, "-")
+	return sha1sum(strings.Join(names, ""))
 }
 
 func normalizeURI(uri string) string {
@@ -266,4 +269,9 @@ func getNginxTpl() string {
 
 func getConfdNginxConfDestPath() string {
 	return filepath.Join(nginxConfDir, "nginx.conf")
+}
+
+func sha1sum(s string) string {
+	h := sha1.Sum([]byte(s))
+	return hex.EncodeToString(h[:])
 }
