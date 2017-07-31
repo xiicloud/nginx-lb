@@ -37,6 +37,9 @@ type Route struct {
 	Backup      *Route `json:"backup"`
 	// Any config directives passed to the `location` config.
 	Opaque string `json:"opaque"`
+
+	// Any config directives passed to the `upstream` config.
+	UpstreamOptions string `json:"upstream_options"`
 }
 
 func (b *Route) fixup() error {

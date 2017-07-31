@@ -3,6 +3,7 @@
 (range $server := . -)
 (range $path, $route := $server.Routes)
 upstream (upstreamName $route $server.DomainName $path) {
+  ($route.UpstreamOptions)
   ($services := split "," $route.Service -)
   (- range $srv := $services -)
   {{range $ipKey := ls "(getLbKey $route $srv)"}}

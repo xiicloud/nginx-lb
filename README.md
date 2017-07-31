@@ -28,7 +28,8 @@ Docker image: `index.csphere.cn/csphere/nginx-lb:1.11.1.2`
             "service": "api"
           },
           "port": 80,
-          "service": "api"
+          "service": "api",
+          "upstream_options": "ip_hash;"
         },
         "/suburl/": {
           "app": "test2",
@@ -67,6 +68,7 @@ Docker image: `index.csphere.cn/csphere/nginx-lb:1.11.1.2`
 - `opaque` 用户自定义的需要放到nginx 配置文件`location`里面的配置项
 - `port` 后端服务的端口，默认为80
 - `service` 应用里的服务的名字，在应用详情页面能查看到
+- `upstream_options` 用户定义的需要放到nginx配置文件`upstream`里面的配置项，如：ip_hash, keepalive等
 
 `ssl_certs`是个数组，用于配置SSL证书。每个证书需要设置个名字，在`servers`里可以通过此名字进行引用。
 
