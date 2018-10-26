@@ -2,6 +2,7 @@
 
 (range $server := . -)
 (range $path, $route := $server.Routes)
+# app: {{ $route.App }}, service: {{ $route.Service }}, backend path: {{ $route.BackendPath }}
 upstream (upstreamName $route $server.DomainName $path) {
   ($route.UpstreamOptions)
   ($services := split "," $route.Service -)
