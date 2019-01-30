@@ -76,7 +76,7 @@ func startCmds() {
 func getEtcdUrl() string {
 	etcdPort := getEnvWithDefault("ETCD_PORT", "2379")
 	etcdHost := getEnvWithDefault("HOST_IP", getEnvWithDefault("CSPHERE_NODE_IPbr0", "172.17.0.1"))
-	return fmt.Sprintf("%s:%s", etcdHost, etcdPort)
+	return fmt.Sprintf("http://%s:%s", etcdHost, etcdPort)
 }
 
 func getEnvWithDefault(key, defaultValue string) string {
