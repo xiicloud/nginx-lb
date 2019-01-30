@@ -19,8 +19,8 @@ clean:
 	rm -f init/init
 
 push: build alpine-1.13
-	docker tag -t $(IMG_DEBIAN) $(DEST_IMG_DEBIAN)
-	docker tag -t $(IMG_ALPINE) $(DEST_IMG_ALPINE)
+	docker tag -f $(IMG_DEBIAN) $(DEST_IMG_DEBIAN)
+	docker tag -f $(IMG_ALPINE) $(DEST_IMG_ALPINE)
 	docker push $(DEST_IMG_DEBIAN)
 	docker push $(DEST_IMG_ALPINE)
 	docker rmi $(DEST_IMG_DEBIAN)
