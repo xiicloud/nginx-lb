@@ -2,7 +2,7 @@
 
 IMG_DEBIAN := csphere/nginx-lb:1.11.1.4
 IMG_ALPINE := csphere/nginx-lb:1.13-alpine.2
-PUSH_REPO := index.csphere.cn
+PUSH_REPO := docker.nicescale.com:4443
 DEST_IMG_DEBIAN := $(PUSH_REPO)/$(IMG_DEBIAN)
 DEST_IMG_ALPINE := $(PUSH_REPO)/$(IMG_ALPINE)
 
@@ -19,8 +19,8 @@ clean:
 	rm -f init/init
 
 push: build alpine-1.13
-	docker tag $(IMG_DEBIAN) $(DEST_IMG_DEBIAN)
-	docker tag $(IMG_ALPINE) $(DEST_IMG_ALPINE)
+	docker tag -t $(IMG_DEBIAN) $(DEST_IMG_DEBIAN)
+	docker tag -t $(IMG_ALPINE) $(DEST_IMG_ALPINE)
 	docker push $(DEST_IMG_DEBIAN)
 	docker push $(DEST_IMG_ALPINE)
 	docker rmi $(DEST_IMG_DEBIAN)
